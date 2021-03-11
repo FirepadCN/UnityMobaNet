@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 public static class TimeHelper 
 {
@@ -10,6 +7,7 @@ public static class TimeHelper
     //1为秒=1000纳秒
 
     //MSDN文档的介绍:https://docs.microsoft.com/zh-cn/dotnet/api/system.datetime.ticks?redirectedfrom=MSDN&view=netframework-4.8
+    //不属于任意时区 。协调世界时,又称世界统一时间,世界标准时间,国际协调时间,简称UTC
     //一个计时周期表示一百纳秒，即一千万分之一秒。 1 毫秒内有 10,000 个计时周期，即 1 秒内有 1,000 万个计时周期。
     private static readonly long epoch = new DateTime(1790,1,1,0,0,0,DateTimeKind.Utc).Ticks;
 

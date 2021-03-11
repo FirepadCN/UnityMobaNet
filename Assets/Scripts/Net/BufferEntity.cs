@@ -4,24 +4,24 @@ using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
 
-namespace Game.Net {
-
+namespace Game.Net
+{
     public class BufferEntity
     {
-        public int recurCount = 0;//重发次数 工程内部使用到 并非业务数据
-        public IPEndPoint endPoint;//发送的目标终端
+        public int recurCount = 0; //重发次数 工程内部使用到 并非业务数据
+        public IPEndPoint endPoint; //发送的目标终端
 
 
         public int protoSize;
-        public int session;//会话ID
-        public int sn;//序号
-        public int moduleID;//模块ID
-        public long time;//发送时间
-        public int messageType;//协议类型
-        public int messageID;//协议ID
-        public byte[] proto;//业务报文
+        public int session; //会话ID
+        public int sn; //序号
+        public int moduleID; //模块ID
+        public long time; //发送时间
+        public int messageType; //协议类型
+        public int messageID; //协议ID
+        public byte[] proto; //业务报文
 
-        public byte[] buffer;//最终要发送的数据 或者是 收到的数据
+        public byte[] buffer; //最终要发送的数据 或者是 收到的数据
 
         /// <summary>
         /// 构建请求报文
@@ -33,8 +33,10 @@ namespace Game.Net {
         /// <param name="messageType"></param>
         /// <param name="messageID"></param>
         /// <param name="proto"></param>
-        public BufferEntity(IPEndPoint endPoint, int session, int sn, int moduleID, int messageType, int messageID, byte[] proto) {
-            protoSize = proto.Length;//业务数据的大小
+        public BufferEntity(IPEndPoint endPoint, int session, int sn, int moduleID, int messageType, int messageID,
+            byte[] proto)
+        {
+            protoSize = proto.Length; //业务数据的大小
             this.endPoint = endPoint;
             this.session = session;
             this.sn = sn;
@@ -42,17 +44,21 @@ namespace Game.Net {
             this.messageType = messageType;
             this.messageID = messageID;
             this.proto = proto;
-
         }
 
-        //编码的接口 byte[] ACK确认报文 业务报文
+        /// <summary>
+        /// 组包 编码的接口 byte[] ACK确认报文 业务报文
+        /// </summary>
+        /// <param name="isAck"></param>
+        /// <returns></returns>
         public byte[] Encoder(bool isAck)
         {
             byte[] data = new byte[32 + protoSize];
-            if (isAck==true)
+            if (isAck == true)
             {
-                protoSize = 0;//发送的业务数据的大小
+                protoSize = 0; //发送的业务数据的大小
             }
+
             byte[] _length = BitConverter.GetBytes(protoSize);
             byte[] _session = BitConverter.GetBytes(session);
             byte[] _sn = BitConverter.GetBytes(sn);
@@ -69,15 +75,15 @@ namespace Game.Net {
             Array.Copy(_time, 0, data, 16, 8);
             Array.Copy(_messageType, 0, data, 24, 4);
             Array.Copy(_messageID, 0, data, 28, 4);
-            if (isAck)
+            if (isAck)//确认报文
             {
-
             }
             else
             {
-                //业务数据 追加进来
-                Array.Copy(proto, 0, data, 32, proto.Length);
+                //业务数据 追加进来 
+                Array.Copy(proto, 0, data, 32, proto.Length);//包头+包体
             }
+
             buffer = data;
             return data;
         }
@@ -87,45 +93,47 @@ namespace Game.Net {
         /// </summary>
         /// <param name="endPoint">终端IP和端口</param>
         /// <param name="buffer">收到的数据</param>
-        public BufferEntity(IPEndPoint endPoint, byte[] buffer) {
-
+        public BufferEntity(IPEndPoint endPoint, byte[] buffer)
+        {
             this.endPoint = endPoint;
             this.buffer = buffer;
             DeCode();
         }
 
-       public bool isFull=false;
+        public bool isFull = false;
 
-        //将报文反序列化 成员
-        private void DeCode() {
-            if (buffer.Length>=4)
-            { 
+        /// <summary>
+        /// 解包 将报文反序列化 成员
+        /// </summary>
+        private void DeCode()
+        {
+            if (buffer.Length >= 4)
+            {
                 //字节数组 转化成 int 或者是long
-                protoSize = BitConverter.ToInt32(buffer, 0);//从0的位置 取4个字节转化成int
-                if (buffer.Length == protoSize+32)
+                protoSize = BitConverter.ToInt32(buffer, 0); //从0的位置 取4个字节转化成int 报文长度
+                if (buffer.Length == protoSize + 32)//完整包
                 {
                     isFull = true;
                 }
             }
-            else
+            else//非完整包
             {
                 isFull = false;
                 return;
             }
-           
-            session = BitConverter.ToInt32(buffer, 4);//从4的位置 取4个字节转化成int
+
+            session = BitConverter.ToInt32(buffer, 4); //从4的位置 取4个字节转化成int
             sn = BitConverter.ToInt32(buffer, 8); //从8的位置 取4个字节转化成int
             moduleID = BitConverter.ToInt32(buffer, 12);
 
-            time = BitConverter.ToInt64(buffer, 16);//从16的位置 取8个字节转化成int
+            time = BitConverter.ToInt64(buffer, 16); //从16的位置 取8个字节转化成int
 
-            messageType = BitConverter.ToInt32(buffer, 24);//
+            messageType = BitConverter.ToInt32(buffer, 24); //
             messageID = BitConverter.ToInt32(buffer, 28);
 
             //BitConverter.ToInt64();//long
             if (messageType == 0)
             {
-
             }
             else
             {
@@ -140,21 +148,20 @@ namespace Game.Net {
         /// 创建一个ACK报文的实体
         /// </summary>
         /// <param name="package">收到的报文实体</param>
-        public BufferEntity(BufferEntity package) {
+        public BufferEntity(BufferEntity package)
+        {
             protoSize = 0;
             this.endPoint = package.endPoint;
             this.session = package.session;
             this.sn = package.sn;
             this.moduleID = package.moduleID;
-            this.time = 0;//
-            this.messageType = 0;//
+            this.time = 0; //
+            this.messageType = 0; //
             this.messageID = package.messageID;
-            
+
             //会话ID 序号
 
-           buffer = Encoder(true);
+            buffer = Encoder(true);
         }
-
     }
-
 }
