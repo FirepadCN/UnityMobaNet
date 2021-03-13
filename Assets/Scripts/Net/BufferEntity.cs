@@ -8,7 +8,10 @@ namespace Game.Net
 {
     public class BufferEntity
     {
-        public int recurCount = 0; //重发次数 工程内部使用到 并非业务数据
+        /// <summary>
+        ///重发次数 工程内部使用到 并非业务数据 
+        /// </summary>
+        public int recurCount = 0; 
         public IPEndPoint endPoint; //发送的目标终端
 
 
@@ -16,7 +19,10 @@ namespace Game.Net
         public int session; //会话ID
         public int sn; //序号
         public int moduleID; //模块ID
-        public long time; //发送时间
+        /// <summary>
+        ///发送时间 
+        /// </summary>
+        public long time; 
         public int messageType; //协议类型
         public int messageID; //协议ID
         public byte[] proto; //业务报文

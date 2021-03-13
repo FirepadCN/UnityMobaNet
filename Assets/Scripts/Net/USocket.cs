@@ -7,16 +7,27 @@ using System.Net.Sockets;
 
 namespace Game.Net
 {
+    /// <summary>
+    /// 提供Socket发送接口 以及 socket接收业务
+    /// </summary>
     public class USocket
     {
         private UdpClient udpClient;
         private string ip="192.168.0.104";
         private int port = 9988;
+
+        /// <summary>
+        /// 客户端代理，完成发送逻辑和处理逻辑 保证报文顺序
+        /// </summary>
+        public static UClient local;
         public static IPEndPoint server;
+
+
         public USocket(Action<BufferEntity> dispatchNetEvent)
         {
             UdpClient udpClient = new UdpClient(0);
             server =new IPEndPoint(IPAddress.Parse(ip),port);
+            local=new UClient(this,server,0,0,0,dispatchNetEvent);
         }
 
         //报文缓存 ConcurrentQueue 线程安全的先进先出 (FIFO)
@@ -69,13 +80,37 @@ namespace Game.Net
             Send(bufferEntity.buffer,server);
         }
 
+        //Updata调用
+        public void Handle()
+        {
+            if (awaitHandle.Count > 0)
+            {
+                UdpReceiveResult data;
+                if (awaitHandle.TryDequeue(out data))
+                {
+                    //反序列化
+                    BufferEntity bufferEntity = new BufferEntity(data.RemoteEndPoint, data.Buffer);
+                    Debug.Log($"处理消息,id:{bufferEntity.messageID}");
+                    //处理业务逻辑
+                    local.Handle(bufferEntity);
+                }
+            }
+        }
+
         /// <summary>
         /// 关闭连接
         /// </summary>
         public void Close()
         {
-            udpClient.Close();
-            udpClient = null;
+            if (local != null)
+                local = null;
+
+            if (udpClient != null)
+            {
+                udpClient.Close();
+                udpClient = null;
+            }
+            
         }
     }
 }
