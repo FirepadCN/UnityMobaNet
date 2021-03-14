@@ -36,3 +36,5 @@ sysinfo.txt
 /ProjectSettings
 /Packages
 /Logs
+*.meta
+/Assets/Test
