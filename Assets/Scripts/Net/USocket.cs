@@ -30,6 +30,8 @@ namespace Game.Net
             local=new UClient(this,server,0,0,0,dispatchNetEvent);
         }
 
+        #region 接收
+
         //报文缓存 ConcurrentQueue 线程安全的先进先出 (FIFO)
         private ConcurrentQueue<UdpReceiveResult> awaitHandle = new ConcurrentQueue<UdpReceiveResult>();
 
@@ -51,6 +53,11 @@ namespace Game.Net
                 }
             }
         }
+
+
+        #endregion
+
+        #region 发送
 
         /// <summary>
         /// 发送报文
@@ -80,6 +87,10 @@ namespace Game.Net
             Send(bufferEntity.buffer,server);
         }
 
+        #endregion
+
+        #region 处理
+
         //Updata调用
         public void Handle()
         {
@@ -97,6 +108,10 @@ namespace Game.Net
             }
         }
 
+        #endregion
+
+        #region 关闭
+
         /// <summary>
         /// 关闭连接
         /// </summary>
@@ -112,5 +127,9 @@ namespace Game.Net
             }
             
         }
+
+        #endregion
+
+        
     }
 }

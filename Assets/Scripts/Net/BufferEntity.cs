@@ -29,6 +29,8 @@ namespace Game.Net
 
         public byte[] buffer; //最终要发送的数据 或者是 收到的数据
 
+        #region 构造
+
         /// <summary>
         /// 构建请求报文
         /// </summary>
@@ -51,6 +53,41 @@ namespace Game.Net
             this.messageID = messageID;
             this.proto = proto;
         }
+
+        /// <summary>
+        /// 构建接收到的报文实体
+        /// </summary>
+        /// <param name="endPoint">终端IP和端口</param>
+        /// <param name="buffer">收到的数据</param>
+        public BufferEntity(IPEndPoint endPoint, byte[] buffer)
+        {
+            this.endPoint = endPoint;
+            this.buffer = buffer;
+            DeCode();
+        }
+
+        /// <summary>
+        /// 创建一个ACK报文的实体
+        /// </summary>
+        /// <param name="package">收到的报文实体</param>
+        public BufferEntity(BufferEntity package)
+        {
+            protoSize = 0;
+            this.endPoint = package.endPoint;
+            this.session = package.session;
+            this.sn = package.sn;
+            this.moduleID = package.moduleID;
+            this.time = 0; //
+            this.messageType = 0; //
+            this.messageID = package.messageID;
+
+            //会话ID 序号
+
+            buffer = Encoder(true);
+        }
+        #endregion
+
+        #region 组包
 
         /// <summary>
         /// 组包 编码的接口 byte[] ACK确认报文 业务报文
@@ -94,20 +131,11 @@ namespace Game.Net
             return data;
         }
 
-        /// <summary>
-        /// 构建接收到的报文实体
-        /// </summary>
-        /// <param name="endPoint">终端IP和端口</param>
-        /// <param name="buffer">收到的数据</param>
-        public BufferEntity(IPEndPoint endPoint, byte[] buffer)
-        {
-            this.endPoint = endPoint;
-            this.buffer = buffer;
-            DeCode();
-        }
-
+        #endregion
+        
+        #region 解包
+        
         public bool isFull = false;
-
         /// <summary>
         /// 解包 将报文反序列化 成员
         /// </summary>
@@ -148,26 +176,15 @@ namespace Game.Net
                 Array.Copy(buffer, 32, proto, 0, protoSize);
             }
         }
+        #endregion
+
+        
+
+        
+
+        
 
 
-        /// <summary>
-        /// 创建一个ACK报文的实体
-        /// </summary>
-        /// <param name="package">收到的报文实体</param>
-        public BufferEntity(BufferEntity package)
-        {
-            protoSize = 0;
-            this.endPoint = package.endPoint;
-            this.session = package.session;
-            this.sn = package.sn;
-            this.moduleID = package.moduleID;
-            this.time = 0; //
-            this.messageType = 0; //
-            this.messageID = package.messageID;
-
-            //会话ID 序号
-
-            buffer = Encoder(true);
-        }
+        
     }
 }

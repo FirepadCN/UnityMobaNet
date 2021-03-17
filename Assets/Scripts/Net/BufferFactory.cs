@@ -20,6 +20,8 @@ namespace Game.Net
         /// <returns></returns>
         public static BufferEntity CreateAndSendPackage(int messageID, IMessage message)
         {
+            JsonHelper.Log(messageID,message);
+
             BufferEntity bufferEntity = new BufferEntity(USocket.local.endPoint, USocket.local.sessionID, 0, 0,
                 MessageType.Login.GetHashCode(),
                 messageID, ProtobufHelper.ToBytes(message));
