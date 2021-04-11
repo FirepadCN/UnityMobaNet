@@ -72,6 +72,10 @@ namespace Game.Net
                     {
                         Debug.Log($"收到ACK确认报文,序号是:{buffer.sn}");
                     }
+                    else
+                    {
+                        Debug.Log($"要确认的报文不存在，序号：{buffer.sn}");
+                    }
                     break;
                 case 1://业务报文
                     BufferEntity ackPacka = new BufferEntity(buffer);

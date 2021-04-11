@@ -13,7 +13,7 @@ namespace Game.Net
     public class USocket
     {
         private UdpClient udpClient;
-        private string ip="192.168.0.104";
+        private string ip="192.168.0.105";
         private int port = 9988;
 
         /// <summary>
@@ -25,9 +25,10 @@ namespace Game.Net
 
         public USocket(Action<BufferEntity> dispatchNetEvent)
         {
-            UdpClient udpClient = new UdpClient(0);
+            udpClient = new UdpClient(0);
             server =new IPEndPoint(IPAddress.Parse(ip),port);
             local=new UClient(this,server,0,0,0,dispatchNetEvent);
+            ReceiveTask();
         }
 
         #region 接收
@@ -101,7 +102,7 @@ namespace Game.Net
                 {
                     //反序列化
                     BufferEntity bufferEntity = new BufferEntity(data.RemoteEndPoint, data.Buffer);
-                    Debug.Log($"处理消息,id:{bufferEntity.messageID}");
+                    Debug.Log($"处理消息,id:{bufferEntity.messageID},序号:{bufferEntity.sn}");
                     //处理业务逻辑
                     local.Handle(bufferEntity);
                 }
