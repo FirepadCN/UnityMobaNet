@@ -22,7 +22,7 @@ namespace Game.Net
         /// <summary>
         ///发送序号 
         /// </summary>
-        public int sendSN = 0;
+        public int sendSN;
 
         /// <summary>
         ///处理的序号 为了保证报文的顺序性
@@ -51,7 +51,7 @@ namespace Game.Net
         /// </summary>
         /// <param name="buffer"></param>
         public void Handle(BufferEntity buffer) {
-            if (this.sessionID==0&&buffer.session!=0)
+            if (this.sessionID==0&&buffer.session!=0)//更新自己的会话ID
             {
                 Debug.Log($"服务发送给我们的会话ID是:{buffer.session}");
                 this.sessionID = buffer.session;
